@@ -209,7 +209,11 @@ a.pic:focus-visible{outline:3px solid var(--accent);outline-offset:2px}
 .ph{display:grid;place-items:center;height:100%;font:700 2.6rem/1 var(--font-d);color:var(--muted)}
 .mc b{overflow:hidden;text-overflow:ellipsis}
 .mc small{color:var(--muted);font-size:.8rem;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
-.mc .chip{justify-self:start;margin-top:3px}
+.mc-foot{display:flex;align-items:center;justify-content:space-between;gap:6px;margin-top:4px;flex-wrap:wrap}
+.mc-add{appearance:none;cursor:pointer;border:1.5px solid var(--edge);background:var(--surface2);color:var(--ink);border-radius:999px;padding:1px 8px;font-size:.72rem;font-weight:700;line-height:1.4}
+.mc-add:hover{border-color:var(--accent)}
+.mc-add.on{background:var(--accent);border-color:var(--accent);color:var(--on-accent)}
+.mc-add:focus-visible{outline:3px solid var(--accent);outline-offset:2px}
 .thumb{width:40px;height:53px;border:1.5px solid var(--edge);border-radius:4px;overflow:hidden;background:var(--surface2);flex:none}
 .thumb img{width:100%;height:100%;object-fit:cover;display:block}
 .edrow{display:grid;grid-template-columns:40px 1fr;gap:10px;padding:10px 0;align-items:start}
@@ -746,7 +750,18 @@ function picHtml(m){const u=S.photos[m.id];return okImg(u)?`<img src="${u}" alt=
 function missCard(m){
   const pic=picHtml(m);
   const link=m.ig?`<a class="pic" href="https://www.instagram.com/${encodeURIComponent(m.ig)}/" target="_blank" rel="noopener noreferrer" aria-label="Instagram de ${esc(m.sub||m.label)} (${esc(m.label)})">${pic}</a>`:`<span class="pic">${pic}</span>`;
-  return `<li class="mc">${link}<b>${esc(m.label)}</b>${m.sub?`<small>${esc(m.sub)}</small>`:""}${m.ig?`<small>@${esc(m.ig)}</small>`:""}${chip(m.status)}</li>`;
+
+  const tid=targetId();
+  const doc=S.picks[tid];
+  const canEdit=doc&&(S.config.picksOpen||(S.isMaster&&(S.unlock||(doc.picks||[]).length===0)));
+  let addBtn="";
+  if(m.status==="in"&&canEdit){
+    ensureDraft(tid);
+    const inTeam=S.draft.picks.includes(m.id);
+    addBtn=`<button class="mc-add ${inTeam?"on":""}" data-act="trombi-toggle" data-id="${esc(m.id)}" aria-pressed="${inTeam}" title="${inTeam?"Retirer de mon équipe":"Ajouter à mon équipe"}">${inTeam?"✔ Équipe":"+ Équipe"}</button>`;
+  }
+
+  return `<li class="mc">${link}<b>${esc(m.label)}</b>${m.sub?`<small>${esc(m.sub)}</small>`:""}${m.ig?`<small>@${esc(m.ig)}</small>`:""}<div class="mc-foot">${chip(m.status)}${addBtn}</div></li>`;
 }
 function viewTrombi(){
   if(!S.misses.length)return `<section class="card empty"><h2>La liste des Miss arrive</h2><p class="muted">L'organisateur ne l'a pas encore publiée.</p></section>`;
@@ -1025,6 +1040,33 @@ async function act(a,el){
       else if(p.length<5)p.push(d.id);
       else{toast("5 Miss maximum. Retire-en une d'abord.",true);return}
       S.draftDirty=true;draw();break;
+    }
+    case "trombi-toggle":{
+      const tid=targetId();const doc=S.picks[tid];if(!doc)return;
+      ensureDraft(tid);
+      const p=S.draft.picks;const i=p.indexOf(d.id);
+      if(i>=0){
+        p.splice(i,1);
+        if(S.draft.captain===d.id)S.draft.captain=null;
+        S.draftDirty=true;
+        toast("Retirée du brouillon ("+p.length+"/5)");
+        draw();
+      }else if(p.length<5){
+        p.push(d.id);
+        S.draftDirty=true;
+        if(p.length===5){
+          const picks=p.filter(id=>S.missById[id]);
+          const captain=picks.includes(S.draft.captain)?S.draft.captain:null;
+          const ok=await savePick(tid,Object.assign({},doc,{picks,captain,updatedAt:Date.now()}),"Équipe complète (5/5) enregistrée !");
+          if(ok){S.draftDirty=false;syncDraftFromDb()}
+        }else{
+          toast("Ajoutée à ton équipe ("+p.length+"/5)");
+        }
+        draw();
+      }else{
+        toast("Ton équipe a déjà 5 Miss. Retire-en une d'abord.",true);
+      }
+      break;
     }
     case "cap":
       if(!S.draft.picks.includes(d.id))return;
