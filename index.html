@@ -76,8 +76,7 @@ code{font-family:ui-monospace,Menlo,Consolas,monospace;background:var(--surface2
 .brand h1{font:700 2.3rem/0.95 var(--font-d);letter-spacing:.03em;display:flex;align-items:baseline;gap:.3em}
 .brand h1 .la{font-size:.48em;font-weight:500;letter-spacing:.12em;color:var(--muted)}
 .brand h1 .mif{color:var(--accent);background:linear-gradient(90deg,var(--accent),var(--accent2));-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent}
-.brand .sub .hl{color:var(--accent);font-weight:700}
-.brand .sub{font-size:.8rem;color:var(--muted);margin-top:4px}
+.brand .sub{display:inline-block;margin-top:5px;font-size:.92rem;font-weight:700;letter-spacing:.02em;line-height:1.3;color:var(--accent);background:linear-gradient(90deg,var(--accent),var(--accent2),var(--gold));-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent}
 .brand .ed{font:600 .9rem/1 var(--font-d);text-align:right;white-space:nowrap;border:1px solid var(--edge);background:var(--surface);padding:6px 11px;border-radius:999px;letter-spacing:.04em}
 .tabs{max-width:760px;margin:0 auto;display:flex;flex-wrap:wrap;gap:2px;padding:0 10px}
 .tab{appearance:none;border:0;background:none;cursor:pointer;padding:10px 12px 9px;font-weight:700;font-size:.95rem;color:var(--muted);white-space:nowrap;border-bottom:3px solid transparent;margin-bottom:-1px}
@@ -963,7 +962,7 @@ function headerHtml(){
   if(S.isMaster){tabs.push(["membres","Membres"]);tabs.push(["regie","Régie"])}
   return `<header class="top"><div class="brand">
     <svg viewBox="0 0 160 160" fill="none" stroke="currentColor" stroke-width="1.2" aria-hidden="true"><circle cx="80" cy="80" r="13" fill="currentColor" opacity=".4" stroke="none"/><ellipse cx="80" cy="80" rx="72" ry="26" transform="rotate(-24 80 80)"/><circle cx="80" cy="80" r="52" stroke-dasharray="2 6"/><circle cx="137" cy="50" r="4.5" fill="currentColor" stroke="none"/><circle cx="22" cy="104" r="2.5" fill="currentColor" stroke="none"/></svg>
-    <div><h1><span class="la">La</span><span class="mif">MIF</span></h1><p class="sub">La Miss<span class="hl">Ile</span> de France, pronostics Miss France</p></div>
+    <div><h1><span class="la">La</span><span class="mif">MIF</span></h1><p class="sub">La MissIle de France</p></div>
     <div class="ed">${esc(S.config.title)}</div></div>
     ${S.ready?`<nav class="tabs" aria-label="Sections">${tabs.map(t=>`<button class="tab" data-act="tab" data-tab="${t[0]}" ${S.tab===t[0]?'aria-current="page"':""}>${t[1]}${t[0]==="regie"?" (master)":""}</button>`).join("")}<button class="tab tab-out" data-act="logout">Déconnexion</button></nav>`:""}</header>`;
 }
