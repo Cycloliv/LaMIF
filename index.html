@@ -79,10 +79,18 @@ code{font-family:ui-monospace,Menlo,Consolas,monospace;background:var(--surface2
 .brand .sub .hl{color:var(--accent);font-weight:700}
 .brand .sub{font-size:.8rem;color:var(--muted);margin-top:4px}
 .brand .ed{font:600 .9rem/1 var(--font-d);text-align:right;white-space:nowrap;border:1px solid var(--edge);background:var(--surface);padding:6px 11px;border-radius:999px;letter-spacing:.04em}
-.tabs{max-width:760px;margin:0 auto;display:flex;gap:2px;overflow-x:auto;padding:0 10px;scrollbar-width:none}
-.tabs::-webkit-scrollbar{display:none}
+.tabs{max-width:760px;margin:0 auto;display:flex;flex-wrap:wrap;gap:2px;padding:0 10px}
 .tab{appearance:none;border:0;background:none;cursor:pointer;padding:10px 12px 9px;font-weight:700;font-size:.95rem;color:var(--muted);white-space:nowrap;border-bottom:3px solid transparent;margin-bottom:-1px}
 .tab[aria-current="page"]{color:var(--ink);border-bottom-color:var(--accent);box-shadow:0 8px 14px -10px var(--glow)}
+@media (min-width:641px){
+  .tab-out{margin-left:auto}
+}
+@media (max-width:640px){
+  .brand{padding:11px 14px 6px}
+  .brand h1{font-size:2rem}
+  .tabs{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:2px;padding:4px 8px 0}
+  .tab{padding:7px 4px;font-size:.78rem;line-height:1.15;text-align:center;white-space:normal;border-bottom-width:2px;border-radius:6px 6px 0 0}
+}
 .tab:focus-visible,.btn:focus-visible,.pick:focus-visible,.rowbtn:focus-visible,select:focus-visible,input:focus-visible,textarea:focus-visible{outline:3px solid var(--accent);outline-offset:2px}
 
 .wrap{max-width:760px;margin:0 auto;padding:18px 16px 56px;display:grid;gap:18px}
@@ -957,7 +965,7 @@ function headerHtml(){
     <svg viewBox="0 0 160 160" fill="none" stroke="currentColor" stroke-width="1.2" aria-hidden="true"><circle cx="80" cy="80" r="13" fill="currentColor" opacity=".4" stroke="none"/><ellipse cx="80" cy="80" rx="72" ry="26" transform="rotate(-24 80 80)"/><circle cx="80" cy="80" r="52" stroke-dasharray="2 6"/><circle cx="137" cy="50" r="4.5" fill="currentColor" stroke="none"/><circle cx="22" cy="104" r="2.5" fill="currentColor" stroke="none"/></svg>
     <div><h1><span class="la">La</span><span class="mif">MIF</span></h1><p class="sub">La Miss<span class="hl">Ile</span> de France, pronostics Miss France</p></div>
     <div class="ed">${esc(S.config.title)}</div></div>
-    ${S.ready?`<nav class="tabs" aria-label="Sections">${tabs.map(t=>`<button class="tab" data-act="tab" data-tab="${t[0]}" ${S.tab===t[0]?'aria-current="page"':""}>${t[1]}${t[0]==="regie"?" (master)":""}</button>`).join("")}<button class="tab" data-act="logout" style="margin-left:auto">Déconnexion</button></nav>`:""}</header>`;
+    ${S.ready?`<nav class="tabs" aria-label="Sections">${tabs.map(t=>`<button class="tab" data-act="tab" data-tab="${t[0]}" ${S.tab===t[0]?'aria-current="page"':""}>${t[1]}${t[0]==="regie"?" (master)":""}</button>`).join("")}<button class="tab tab-out" data-act="logout">Déconnexion</button></nav>`:""}</header>`;
 }
 function bodyHtml(){
   let t=S.tab;if((t==="regie"||t==="membres")&&!S.isMaster)t="classement";
