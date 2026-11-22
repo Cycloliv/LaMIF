@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<title>La Missile de France – Pronostics Miss France</title>
+<title>La Missile de France - Pronostics Miss France</title>
 <meta name="theme-color" content="#060A18">
 <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Ctext y='.9em' font-size='90'%3E%F0%9F%9A%80%3C/text%3E%3C/svg%3E">
 <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
@@ -17,7 +17,6 @@
 :root{
   --font-d:"Chakra Petch","Arial Narrow","Helvetica Neue",Arial,sans-serif;
   --font-b:"Manrope",system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;
-  /* Thème par défaut : nuit spatiale */
   --bg:#060A18; --surface:#0D1530; --surface2:#141E42; --ink:#E9EEFF; --muted:#93A3CC; --line:#223062; --edge:#2E4180;
   --accent:#3DD6F5; --on-accent:#031321; --accent2:#8B7CFF; --glow:rgba(61,214,245,.38);
   --gold:#FFB547; --gold-bg:#3A2A10; --rose:#FF7A9A; --danger:#FF8C85;
@@ -28,7 +27,6 @@
   padding-top:env(safe-area-inset-top,0px);
   padding-bottom:env(safe-area-inset-bottom,0px);
 }
-/* Variante claire : ciel de jour, si l'appareil est réglé en mode clair */
 @media (prefers-color-scheme: light){
   :root:not([data-theme="dark"]){
     --bg:#EDF1FB; --surface:#FFFFFF; --surface2:#E7EDFB; --ink:#0A1230; --muted:#4F5F88; --line:#C9D3EC; --edge:#A9B8DE;
@@ -66,7 +64,7 @@ code{font-family:ui-monospace,Menlo,Consolas,monospace;background:var(--surface2
 .center{text-align:center}
 .small{font-size:.86rem}
 
-/* En-tête */
+/* En-tete */
 .top{position:sticky;top:env(safe-area-inset-top,0px);z-index:5;background:var(--bg);background:color-mix(in srgb,var(--bg) 86%,transparent);-webkit-backdrop-filter:blur(12px);backdrop-filter:blur(12px);border-bottom:1px solid var(--edge)}
 .top::after{content:"";position:absolute;left:0;right:0;bottom:-1px;height:2px;background:linear-gradient(90deg,var(--accent),var(--accent2),var(--gold));opacity:.9}
 .brand{position:relative;overflow:hidden;max-width:760px;margin:0 auto;padding:14px 16px 8px;display:flex;align-items:flex-end;justify-content:space-between;gap:12px}
@@ -90,39 +88,4 @@ code{font-family:ui-monospace,Menlo,Consolas,monospace;background:var(--surface2
 }
 .tab:focus-visible,.btn:focus-visible,.pick:focus-visible,.rowbtn:focus-visible,select:focus-visible,input:focus-visible,textarea:focus-visible{outline:3px solid var(--accent);outline-offset:2px}
 
-.wrap{max-width:760px;margin:0 auto;padding:18px 16px 56px;display:grid;gap:18px}
-
-/* Fiches */
-.card{background:var(--surface);border:1px solid var(--edge);border-radius:12px;box-shadow:var(--shadow);overflow:hidden}
-.card>h2{font:700 1.1rem/1.1 var(--font-d);letter-spacing:.03em;padding:13px 14px 11px;border-bottom:1px solid var(--edge);border-left:3px solid var(--accent);background:linear-gradient(90deg,var(--surface2),transparent);display:flex;justify-content:space-between;align-items:baseline;gap:10px}
-.card>h2 small{font:500 .85rem var(--font-b);color:var(--muted)}
-.card .in{padding:14px}
-.card .in>*+*{margin-top:12px}
-.note{border-left:4px solid var(--gold);background:var(--gold-bg);padding:10px 12px;border-radius:0 6px 6px 0;font-size:.93rem}
-.note.bad{border-left-color:var(--danger);background:transparent;border:1.5px solid var(--danger);border-left-width:4px}
-
-/* Classement */
-.rank{list-style:none;margin:0;padding:0}
-.rank li+li{border-top:1px solid var(--line)}
-.rowbtn{appearance:none;width:100%;text-align:left;background:none;border:0;cursor:pointer;display:grid;grid-template-columns:44px 1fr auto;align-items:center;gap:8px;padding:10px 14px}
-.rowbtn:hover{background:var(--surface2)}
-.pos{font:700 1.7rem/1 var(--font-d);text-align:center}
-.rank li.first .pos{color:var(--gold)}
-.who2{display:grid;gap:1px;min-width:0}
-.who2 b{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
-.score{font:700 1.55rem/1 var(--font-d);text-align:right}
-.score small{display:block;font:500 .72rem var(--font-b);color:var(--muted)}
-.detail{padding:4px 14px 14px;background:var(--surface2);border-top:1px solid var(--line)}
-.tag{display:inline-block;font-size:.72rem;font-weight:700;border:1px solid var(--edge);border-radius:999px;padding:0 7px;margin-left:6px;vertical-align:2px}
-
-/* Compo */
-.compo{list-style:none;margin:0;padding:0}
-.slot{display:grid;grid-template-columns:38px 1fr auto;gap:10px;align-items:center;padding:9px 0}
-.slot+.slot{border-top:1px dashed var(--line)}
-.shirt{width:36px;height:36px;border-radius:50%;border:1.5px solid var(--edge);display:grid;place-items:center;font:700 1rem/1 var(--font-d);background:var(--surface)}
-.shirt.cap{background:var(--gold-bg);color:var(--gold);border-color:var(--gold);border-width:2.5px}
-.who{display:grid;min-width:0}
-.who small{color:var(--muted);font-size:.8rem}
-.side{display:grid;justify-items:end;gap:2px}
-.pts{font:700 1.2rem/1 var(--font-d)}
-.chip{
+.wrap
