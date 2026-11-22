@@ -591,20 +591,6 @@ function powersHtml(tid,doc){
   return h;
 }
 
-function viewMisses(){
-  if(!S.misses.length)return `<section class="card empty"><h2>La liste des Miss arrive</h2><p class="muted">L'organisateur ne l'a pas encore publiée.</p></section>`;
-  const locked=!S.config.picksOpen;
-  const count={};
-  if(locked)viewIds().forEach(id=>{effectiveTeam(S.picks[id]).team.forEach(m=>{count[m]=(count[m]||0)+1})});
-  const list=[...S.misses].sort((a,b)=>STATUS_ORDER.indexOf(a.status)-STATUS_ORDER.indexOf(b.status)||a.label.localeCompare(b.label,"fr"));
-  return `<section class="card"><h2>Les Miss <small>${S.misses.length} candidates</small></h2><div class="in"><ul class="list">`+
-    list.map(m=>{
-      const evs={};S.events.filter(e=>e.missId===m.id).forEach(e=>{const k=e.label;evs[k]=evs[k]||{n:0,p:0};evs[k].n++;evs[k].p+=Number(e.points||0)});
-      const evh=Object.keys(evs).map(k=>`<small>${esc(k)}${evs[k].n>1?" ×"+evs[k].n:""} (${sg(evs[k].p)})</small>`).join("");
-      return `<li><span class="who"><b>${esc(m.label)}</b>${m.sub?`<small>${esc(m.sub)}</small>`:""}${evh}${locked&&count[m.id]?`<small>Dans ${count[m.id]} équipe${count[m.id]>1?"s":""}</small>`:""}</span>${chip(m.status)}</li>`;
-    }).join("")+`</ul></div></section>`;
-}
-
 function viewRules(){
   const c=S.config;const p=c.points;
   return `<section class="card rules"><h2>Règles <small>${esc(c.title)}</small></h2><div class="in">
@@ -774,7 +760,7 @@ function viewTrombi(){
   if(!S.misses.length)return `<section class="card empty"><h2>La liste des Miss arrive</h2><p class="muted">L'organisateur ne l'a pas encore publiée.</p></section>`;
   const list=[...S.misses].sort((a,b)=>a.label.localeCompare(b.label,"fr"));
   const nIg=list.filter(m=>m.ig).length;
-  let h=`<section class="card"><h2>Trombinoscope <small>${list.length} candidates</small></h2><div class="in"><p class="muted small">Touche la photo d'une Miss pour ouvrir son compte Instagram${nIg<list.length?" (disponible pour "+nIg+" Miss sur "+list.length+")":""}.</p><ul class="mgrid">${list.map(missCard).join("")}</ul></div></section>`;
+  let h=`<section class="card"><h2>Les Missiles <small>${list.length} candidates</small></h2><div class="in"><p class="muted small">Touche la photo d'une Miss pour ouvrir son compte Instagram${nIg<list.length?" (disponible pour "+nIg+" Miss sur "+list.length+")":""}.</p><ul class="mgrid">${list.map(missCard).join("")}</ul></div></section>`;
   if(S.isMaster){
     h+=`<section class="card"><h2>Photos et Instagram <small>master</small></h2><div class="in">`;
     if(!S.tEdit)h+=`<button class="btn ghost" data-act="t-edit">Modifier les photos et les comptes Instagram</button>`;
@@ -958,7 +944,7 @@ function viewRegie(){
 
 /* ============ Dessin général ============ */
 function headerHtml(){
-  const tabs=[["classement","Classement"],["dashboard","Dashboard"],["equipe","Mon équipe"],["miss","Les Miss"],["trombi","Trombinoscope"],["regles","Règles"]];
+  const tabs=[["classement","Classement"],["dashboard","Dashboard"],["equipe","Mon équipe"],["trombi","Les Missiles"],["regles","Règles"]];
   if(S.isMaster){tabs.push(["membres","Membres"]);tabs.push(["regie","Régie"])}
   return `<header class="top"><div class="brand">
     <svg viewBox="0 0 160 160" fill="none" stroke="currentColor" stroke-width="1.2" aria-hidden="true"><circle cx="80" cy="80" r="13" fill="currentColor" opacity=".4" stroke="none"/><ellipse cx="80" cy="80" rx="72" ry="26" transform="rotate(-24 80 80)"/><circle cx="80" cy="80" r="52" stroke-dasharray="2 6"/><circle cx="137" cy="50" r="4.5" fill="currentColor" stroke="none"/><circle cx="22" cy="104" r="2.5" fill="currentColor" stroke="none"/></svg>
@@ -971,7 +957,6 @@ function bodyHtml(){
   switch(t){
     case "dashboard":return viewDashboard();
     case "equipe":return viewTeam();
-    case "miss":return viewMisses();
     case "trombi":return viewTrombi();
     case "regles":return viewRules();
     case "membres":return viewMembers();
