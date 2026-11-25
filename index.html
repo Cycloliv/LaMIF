@@ -226,6 +226,7 @@ a.pic:focus-visible{outline:3px solid var(--accent);outline-offset:2px}
 .edrow{display:grid;grid-template-columns:40px 1fr;gap:10px;padding:10px 0;align-items:start}
 .edrow+.edrow{border-top:1px solid var(--line)}
 .edrow .ctl{display:grid;gap:6px;min-width:0}
+.mc-note{min-height:56px;font-size:.8rem;line-height:1.35;padding:6px 8px;margin-top:6px;border-radius:8px;resize:vertical}
 #toast{position:fixed;left:50%;transform:translateX(-50%);bottom:calc(16px + env(safe-area-inset-bottom,0px));background:var(--ink);color:var(--bg);padding:10px 16px;border-radius:10px;box-shadow:0 8px 28px -8px rgba(0,0,0,.6);max-width:92vw;font-weight:600;z-index:20;opacity:0;pointer-events:none;transition:opacity .2s}
 #toast.show{opacity:1}
 #toast.err{background:var(--danger);color:#fff}
@@ -267,7 +268,7 @@ const DEFAULT_CONFIG={
 const S={
   db:null,user:null,me:{id:null,name:""},isMaster:false,canWrite:null,noDb:false,setup:false,authReady:false,authMode:"in",adminExists:false,importData:null,unsubs:[],auth:null,fs:null,
   loaded:{},ready:false,
-  config:mergeConfig({}),misses:[],events:[],adjust:[],picks:{},groups:[],group:"*",photos:{},tEdit:false,mgGroup:"",joinSel:{},
+  config:mergeConfig({}),misses:[],events:[],adjust:[],picks:{},groups:[],group:"*",photos:{},notes:{},noteDirty:{},tEdit:false,mgGroup:"",joinSel:{},
   missById:{},bonusByMiss:{},
   tab:"classement",openPlayer:null,f:{},confirm:null,
   draft:{picks:[],captain:null},draftFor:null,draftDirty:false,
@@ -754,13 +755,13 @@ function missCard(m){
     addBtn=`<button class="mc-add ${inTeam?"on":""}" data-act="trombi-toggle" data-id="${esc(m.id)}" aria-pressed="${inTeam}" title="${inTeam?"Retirer de mon équipe":"Ajouter à mon équipe"}">${inTeam?"✔ Équipe":"+ Équipe"}</button>`;
   }
 
-  return `<li class="mc">${link}<b>${esc(m.label)}</b>${m.sub?`<small>${esc(m.sub)}</small>`:""}${m.ig?`<small>@${esc(m.ig)}</small>`:""}<div class="mc-foot">${chip(m.status)}${addBtn}</div></li>`;
+  return `<li class="mc">${link}<b>${esc(m.label)}</b>${m.sub?`<small>${esc(m.sub)}</small>`:""}${m.ig?`<small>@${esc(m.ig)}</small>`:""}<div class="mc-foot">${chip(m.status)}${addBtn}</div><textarea class="mc-note" rows="2" maxlength="300" data-note="${esc(m.id)}" placeholder="Mes notes sur cette Miss…" aria-label="Mes notes sur ${esc(m.label)}">${esc(S.notes[m.id]||"")}</textarea></li>`;
 }
 function viewTrombi(){
   if(!S.misses.length)return `<section class="card empty"><h2>La liste des Miss arrive</h2><p class="muted">L'organisateur ne l'a pas encore publiée.</p></section>`;
   const list=[...S.misses].sort((a,b)=>a.label.localeCompare(b.label,"fr"));
   const nIg=list.filter(m=>m.ig).length;
-  let h=`<section class="card"><h2>Les Missiles <small>${list.length} candidates</small></h2><div class="in"><p class="muted small">Touche la photo d'une Miss pour ouvrir son compte Instagram${nIg<list.length?" (disponible pour "+nIg+" Miss sur "+list.length+")":""}.</p><ul class="mgrid">${list.map(missCard).join("")}</ul></div></section>`;
+  let h=`<section class="card"><h2>Les Missiles <small>${list.length} candidates</small></h2><div class="in"><p class="muted small">Touche la photo d'une Miss pour ouvrir son compte Instagram${nIg<list.length?" (disponible pour "+nIg+" Miss sur "+list.length+")":""}. Les notes sous chaque Miss sont personnelles : toi seul(e) les vois.</p><ul class="mgrid">${list.map(missCard).join("")}</ul></div></section>`;
   if(S.isMaster){
     h+=`<section class="card"><h2>Photos et Instagram <small>master</small></h2><div class="in">`;
     if(!S.tEdit)h+=`<button class="btn ghost" data-act="t-edit">Modifier les photos et les comptes Instagram</button>`;
@@ -1325,9 +1326,20 @@ $app.addEventListener("keydown",e=>{
   const t=e.target;
   if(e.key==="Enter"&&t.dataset&&t.dataset.f&&String(t.dataset.f).indexOf("a_")===0){e.preventDefault();const b=document.querySelector('[data-act="auth-submit"]');if(b)act("auth-submit",b)}
 });
-$app.addEventListener("input",e=>{const t=e.target;if(t.dataset&&t.dataset.f)S.f[t.dataset.f]=t.value});
+async function saveNotes(){
+  if(!S.me.id)return;
+  const ids=Object.keys(S.noteDirty);
+  const clean={};Object.keys(S.notes).forEach(k=>{const v=String(S.notes[k]||"").trim().slice(0,300);if(v)clean[k]=v});
+  const ok=await enq("notes",async()=>{
+    try{await S.db.doc("notes/"+S.me.id).set({notes:clean});return true}
+    catch(e){toast(S.isMaster?"Impossible d'enregistrer la note : mets à jour les règles Firestore (voir le guide).":"Impossible d'enregistrer ta note pour le moment.",true);return false}
+  });
+  if(ok){ids.forEach(id=>{if(String(S.notes[id]||"").trim()===String(clean[id]||""))delete S.noteDirty[id]});toast("Note enregistrée")}
+}
+$app.addEventListener("input",e=>{const t=e.target;if(t.dataset&&t.dataset.f)S.f[t.dataset.f]=t.value;if(t.dataset&&t.dataset.note){S.notes[t.dataset.note]=t.value;S.noteDirty[t.dataset.note]=true}});
 $app.addEventListener("change",async e=>{
   const t=e.target;if(!t.dataset)return;
+  if(t.dataset.note){await saveNotes();return}
   if(t.dataset.f)S.f[t.dataset.f]=t.value;
   if(t.dataset.chg==="pw"){S.confirm=null;draw();return}
   if(t.dataset.chg==="import"){
@@ -1380,6 +1392,11 @@ function startListeners(uid){
     const ph={};snap.docs.forEach(x=>{if(x.exists){const d=x.data();if(d&&d.img)ph[x.id]=d.img}});
     S.photos=ph;schedule();
   },()=>{}));
+  add(S.db.doc("notes/"+uid).onSnapshot(s=>{
+    const m=Object.assign({},(s.exists&&s.data().notes)||{});
+    Object.keys(S.noteDirty).forEach(id=>{m[id]=S.notes[id]});
+    S.notes=m;schedule();
+  },()=>{}));
   add(S.db.collection("picks").onSnapshot(snap=>{
     const p={};snap.docs.forEach(x=>{if(x.exists)p[x.id]=x.data()});
     Object.keys(p).forEach(id=>{const c=p[id].claimedFrom;if(c&&p[c]&&p[c].manual)delete p[c]});
@@ -1389,7 +1406,7 @@ function startListeners(uid){
 function onUser(u){
   stopListeners();
   S.authReady=true;S.loaded={};S.ready=false;S.picks={};S.isMaster=false;S.adminExists=false;
-  S.draftFor=null;S.editTarget=null;S.tab="classement";S.openPlayer=null;
+  S.draftFor=null;S.editTarget=null;S.tab="classement";S.openPlayer=null;S.notes={};S.noteDirty={};
   if(!u){S.me={id:null,name:""};S.authMode="in";S.f.a_pass="";draw();return}
   S.me={id:u.uid,name:u.displayName||String(u.email||"").split("@")[0]};
   S.canWrite=true;S.db=S.fs;
